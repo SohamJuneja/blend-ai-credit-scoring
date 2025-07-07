@@ -88,6 +88,15 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
     null
   );
 
+  // DEBUG: Log key state on every render
+  console.log('CreditScoreComponent render', {
+    connected,
+    walletAddress,
+    creditData,
+    isLoading,
+    error,
+  });
+
   // Hooks for Blend Protocol integration
   const { data: poolMeta } = usePoolMeta(poolId);
   const { data: pool } = usePool(poolMeta);
@@ -165,7 +174,7 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
 
   // Auto-trigger credit score calculation when wallet is available
   useEffect(() => {
-    console.log('CreditScoreComponent effect:', {
+    console.log('CreditScoreComponent useEffect', {
       connected,
       walletAddress,
       creditData,
