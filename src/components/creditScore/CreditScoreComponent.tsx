@@ -178,6 +178,18 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connected, walletAddress]);
 
+  // Fallback: if connected and walletAddress but no creditData after 2s, trigger calculation
+  useEffect(() => {
+    if (connected && walletAddress && !creditData && !isLoading && !error) {
+      const timeout = setTimeout(() => {
+        if (!creditData && !isLoading && !error) {
+          calculateCreditScore();
+        }
+      }, 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [connected, walletAddress, creditData, isLoading, error]);
+
   if (isLoading) {
     return (
       <Box textAlign="center" py={8}>
@@ -248,7 +260,7 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
               Analyze My Wallet
             </Button>
             <Typography variant="body2" color="white" sx={{ mt: 2 }}>
-              If the score does not load automatically, click the button above.
+              If the results do not appear automatically, click the button above.
             </Typography>
           </Box>
         </CardContent>
