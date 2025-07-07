@@ -30,9 +30,7 @@ const CreditScoreSystem: NextPage = () => {
           <br />• Loan Activity Patterns
           <br />• Risk Assessment
         </Alert>
-        <Button variant="contained" color="primary" size="large" sx={{ mt: 2 }}>
-          Connect Wallet to Get Started
-        </Button>
+        <h3>Connect Wallet from the top to Get Started</h3>
       </Box>
     );
   }
