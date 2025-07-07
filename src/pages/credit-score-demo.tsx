@@ -35,7 +35,7 @@ const CreditScoreDemo = () => {
     );
   }
 
-  if (!connected) {
+  if (!connected || !walletAddress) {
     return (
       <DefaultLayout>
         <Container maxWidth="lg">
@@ -46,7 +46,6 @@ const CreditScoreDemo = () => {
                 Please connect your Stellar wallet to access the credit scoring system.
               </Typography>
             </Alert>
-
             {/* Debug information for troubleshooting */}
             <EnvironmentDebug />
           </Box>

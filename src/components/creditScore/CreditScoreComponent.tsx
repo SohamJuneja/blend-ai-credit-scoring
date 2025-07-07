@@ -165,6 +165,13 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
 
   // Auto-trigger credit score calculation when wallet is available
   useEffect(() => {
+    console.log('CreditScoreComponent effect:', {
+      connected,
+      walletAddress,
+      creditData,
+      isLoading,
+      error,
+    });
     if (connected && walletAddress && !creditData && !isLoading && !error) {
       calculateCreditScore();
     }
@@ -211,7 +218,7 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
     );
   }
 
-  if (!creditData) {
+  if (!creditData && !isLoading) {
     return (
       <Card sx={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
         <CardContent>
@@ -240,6 +247,9 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
             >
               Analyze My Wallet
             </Button>
+            <Typography variant="body2" color="white" sx={{ mt: 2 }}>
+              If the score does not load automatically, click the button above.
+            </Typography>
           </Box>
         </CardContent>
       </Card>
