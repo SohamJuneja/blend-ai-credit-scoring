@@ -77,6 +77,7 @@ const CreditScoreDemo = () => {
           <CreditScoreComponent
             walletAddress={walletAddress}
             poolId="CCLBPEYS3XFK65MYYXSBMOGKUI4ODN5S7SUZBGD7NALUQF64QILLX5B5"
+            connected={connected}
           />
 
           {/* Debug information for troubleshooting */}

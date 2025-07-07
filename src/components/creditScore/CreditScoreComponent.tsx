@@ -31,7 +31,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { usePool, usePoolMeta } from '../../hooks/api';
 import { BlendCreditIntegrationService } from '../../services/blendCreditIntegration';
 import { StellarDataService } from '../../services/stellarDataService';
@@ -71,12 +71,14 @@ interface CreditScoreComponentProps {
   walletAddress: string;
   poolId?: string; // Add poolId for Blend integration
   onScoreCalculated?: (score: CreditScoreData) => void;
+  connected?: boolean;
 }
 
 const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
   walletAddress,
   poolId = 'CCLBPEYS3XFK65MYYXSBMOGKUI4ODN5S7SUZBGD7NALUQF64QILLX5B5', // Default to main pool
   onScoreCalculated,
+  connected = false,
 }) => {
   const theme = useTheme();
   const [creditData, setCreditData] = useState<CreditScoreData | null>(null);
@@ -160,6 +162,14 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
       }
     }
   };
+
+  // Auto-trigger credit score calculation when wallet is available
+  useEffect(() => {
+    if (connected && walletAddress && !creditData && !isLoading && !error) {
+      calculateCreditScore();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connected, walletAddress]);
 
   if (isLoading) {
     return (
@@ -620,6 +630,75 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
                         sx={{ color: getFactorColor(factor) }}
                       >
                         {factor.name}
+                        {factor.id === 'wallet_age' && factor.data?.months !== undefined && (
+                          <Typography
+                            variant="body2"
+                            component="span"
+                            sx={{ ml: 1, color: 'text.secondary', fontWeight: 'normal' }}
+                          >
+                            ({factor.data.months} months)
+                          </Typography>
+                        )}
+                        {factor.id === 'transaction_history' &&
+                          factor.data?.totalTransactions !== undefined && (
+                            <Typography
+                              variant="body2"
+                              component="span"
+                              sx={{ ml: 1, color: 'text.secondary', fontWeight: 'normal' }}
+                            >
+                              ({factor.data.totalTransactions} txns)
+                            </Typography>
+                          )}
+                        {factor.id === 'repayment_history' &&
+                          factor.data?.totalLoans !== undefined && (
+                            <Typography
+                              variant="body2"
+                              component="span"
+                              sx={{ ml: 1, color: 'text.secondary', fontWeight: 'normal' }}
+                            >
+                              ({factor.data.totalLoans} loans, {factor.data.onTimePayments} on-time,{' '}
+                              {factor.data.latePayments} late, {factor.data.missedPayments} missed)
+                            </Typography>
+                          )}
+                        {factor.id === 'collateralization' &&
+                          factor.data?.timeWeightedAverage !== undefined && (
+                            <Typography
+                              variant="body2"
+                              component="span"
+                              sx={{ ml: 1, color: 'text.secondary', fontWeight: 'normal' }}
+                            >
+                              (Avg: {factor.data.timeWeightedAverage.toFixed(2)}x)
+                            </Typography>
+                          )}
+                        {factor.id === 'liquidation_history' &&
+                          factor.data?.totalLiquidations !== undefined && (
+                            <Typography
+                              variant="body2"
+                              component="span"
+                              sx={{ ml: 1, color: 'text.secondary', fontWeight: 'normal' }}
+                            >
+                              ({factor.data.totalLiquidations} liquidations)
+                            </Typography>
+                          )}
+                        {factor.id === 'asset_diversity' &&
+                          factor.data?.uniqueAssets !== undefined && (
+                            <Typography
+                              variant="body2"
+                              component="span"
+                              sx={{ ml: 1, color: 'text.secondary', fontWeight: 'normal' }}
+                            >
+                              ({factor.data.uniqueAssets} assets)
+                            </Typography>
+                          )}
+                        {factor.id === 'loan_activity' && factor.data?.totalLoans !== undefined && (
+                          <Typography
+                            variant="body2"
+                            component="span"
+                            sx={{ ml: 1, color: 'text.secondary', fontWeight: 'normal' }}
+                          >
+                            ({factor.data.totalLoans} loans)
+                          </Typography>
+                        )}
                       </Typography>
                       <Tooltip title={factor.description}>
                         <InfoIcon sx={{ ml: 1, fontSize: 18, color: 'text.secondary' }} />
@@ -704,6 +783,73 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
                     sx={{ flex: 1, color: getFactorColor(factor) }}
                   >
                     {factor.name}
+                    {factor.id === 'wallet_age' && factor.data?.months !== undefined && (
+                      <Typography
+                        variant="body2"
+                        component="span"
+                        sx={{ ml: 1, color: 'text.secondary', fontWeight: 'normal' }}
+                      >
+                        ({factor.data.months} months)
+                      </Typography>
+                    )}
+                    {factor.id === 'transaction_history' &&
+                      factor.data?.totalTransactions !== undefined && (
+                        <Typography
+                          variant="body2"
+                          component="span"
+                          sx={{ ml: 1, color: 'text.secondary', fontWeight: 'normal' }}
+                        >
+                          ({factor.data.totalTransactions} txns)
+                        </Typography>
+                      )}
+                    {factor.id === 'repayment_history' && factor.data?.totalLoans !== undefined && (
+                      <Typography
+                        variant="body2"
+                        component="span"
+                        sx={{ ml: 1, color: 'text.secondary', fontWeight: 'normal' }}
+                      >
+                        ({factor.data.totalLoans} loans, {factor.data.onTimePayments} on-time,{' '}
+                        {factor.data.latePayments} late, {factor.data.missedPayments} missed)
+                      </Typography>
+                    )}
+                    {factor.id === 'collateralization' &&
+                      factor.data?.timeWeightedAverage !== undefined && (
+                        <Typography
+                          variant="body2"
+                          component="span"
+                          sx={{ ml: 1, color: 'text.secondary', fontWeight: 'normal' }}
+                        >
+                          (Avg: {factor.data.timeWeightedAverage.toFixed(2)}x)
+                        </Typography>
+                      )}
+                    {factor.id === 'liquidation_history' &&
+                      factor.data?.totalLiquidations !== undefined && (
+                        <Typography
+                          variant="body2"
+                          component="span"
+                          sx={{ ml: 1, color: 'text.secondary', fontWeight: 'normal' }}
+                        >
+                          ({factor.data.totalLiquidations} liquidations)
+                        </Typography>
+                      )}
+                    {factor.id === 'asset_diversity' && factor.data?.uniqueAssets !== undefined && (
+                      <Typography
+                        variant="body2"
+                        component="span"
+                        sx={{ ml: 1, color: 'text.secondary', fontWeight: 'normal' }}
+                      >
+                        ({factor.data.uniqueAssets} assets)
+                      </Typography>
+                    )}
+                    {factor.id === 'loan_activity' && factor.data?.totalLoans !== undefined && (
+                      <Typography
+                        variant="body2"
+                        component="span"
+                        sx={{ ml: 1, color: 'text.secondary', fontWeight: 'normal' }}
+                      >
+                        ({factor.data.totalLoans} loans)
+                      </Typography>
+                    )}
                   </Typography>
                   <Chip
                     label={factor.status}

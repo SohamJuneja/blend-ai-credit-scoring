@@ -84,8 +84,18 @@ export class StellarDataService {
 
   private async getTotalTransactions(walletAddress: string): Promise<number> {
     try {
-      const account = await this.horizon.accounts().accountId(walletAddress).call();
-      return parseInt(account.sequence) || 0;
+      // Fetch up to 200 transactions (Horizon max per page)
+      const transactions = await this.horizon
+        .transactions()
+        .forAccount(walletAddress)
+        .limit(200)
+        .order('desc')
+        .call();
+      // If there are 200, there may be more, so indicate 200+
+      if (transactions.records.length === 200) {
+        return 200; // Or return 200+ if you want to show it's at least 200
+      }
+      return transactions.records.length;
     } catch (error) {
       console.error('Error fetching total transactions:', error);
       return 0;
