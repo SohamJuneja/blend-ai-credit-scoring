@@ -190,45 +190,6 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
     }
   }, [connected, walletAddress, creditData, isLoading, error]);
 
-  if (connected && (!creditData || !blendIntegration)) {
-    return (
-      <Card sx={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
-        <CardContent>
-          <Box textAlign="center" py={6}>
-            <CreditScoreIcon sx={{ fontSize: 80, color: 'white', mb: 3 }} />
-            <Typography variant="h4" gutterBottom sx={{ color: 'white', fontWeight: 'bold' }}>
-              Analyze Your Wallet
-            </Typography>
-            <Typography variant="h6" color="rgba(255,255,255,0.8)" gutterBottom sx={{ mb: 4 }}>
-              Click below to analyze your wallet and unlock personalized Blend Protocol terms.
-            </Typography>
-            <Button
-              variant="contained"
-              size="large"
-              onClick={calculateCreditScore}
-              disabled={isLoading}
-              sx={{
-                mt: 2,
-                py: 1.5,
-                px: 4,
-                backgroundColor: 'white',
-                color: 'primary.main',
-                '&:hover': {
-                  backgroundColor: 'rgba(255,255,255,0.9)',
-                },
-              }}
-            >
-              Analyze My Wallet
-            </Button>
-            <Typography variant="body2" color="white" sx={{ mt: 2 }}>
-              If the results do not appear automatically, click the button above.
-            </Typography>
-          </Box>
-        </CardContent>
-      </Card>
-    );
-  }
-
   if (isLoading) {
     return (
       <Box textAlign="center" py={8}>
@@ -266,6 +227,44 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
           Try Again
         </Button>
       </Alert>
+    );
+  }
+
+  if (!creditData && !isLoading) {
+    return (
+      <Card sx={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+        <CardContent>
+          <Box textAlign="center" py={6}>
+            <CreditScoreIcon sx={{ fontSize: 80, color: 'white', mb: 3 }} />
+            <Typography variant="h4" gutterBottom sx={{ color: 'white', fontWeight: 'bold' }}>
+              Get Your DeFi Credit Score
+            </Typography>
+            <Typography variant="h6" color="rgba(255,255,255,0.8)" gutterBottom sx={{ mb: 4 }}>
+              Unlock better lending terms with our comprehensive credit analysis
+            </Typography>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={calculateCreditScore}
+              sx={{
+                mt: 2,
+                py: 1.5,
+                px: 4,
+                backgroundColor: 'white',
+                color: 'primary.main',
+                '&:hover': {
+                  backgroundColor: 'rgba(255,255,255,0.9)',
+                },
+              }}
+            >
+              Analyze My Wallet
+            </Button>
+            <Typography variant="body2" color="white" sx={{ mt: 2 }}>
+              If the results do not appear automatically, click the button above.
+            </Typography>
+          </Box>
+        </CardContent>
+      </Card>
     );
   }
 
