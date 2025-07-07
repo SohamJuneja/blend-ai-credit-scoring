@@ -190,6 +190,21 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
     }
   }, [connected, walletAddress, creditData, isLoading, error]);
 
+  // DEBUG OUTPUT
+  if (typeof window !== 'undefined') {
+    console.log('DEBUG:', { connected, walletAddress, creditData, blendIntegration });
+  }
+  // Optionally, show debug info in the UI for quick diagnosis
+  if (process.env.NODE_ENV !== 'production' || true) {
+    return (
+      <div style={{ color: 'red', background: 'white', zIndex: 9999, padding: 8 }}>
+        <pre>
+          {JSON.stringify({ connected, walletAddress, creditData, blendIntegration }, null, 2)}
+        </pre>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <Box textAlign="center" py={8}>
