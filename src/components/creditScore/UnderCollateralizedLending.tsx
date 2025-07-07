@@ -212,99 +212,142 @@ const UnderCollateralizedLending: React.FC<UnderCollateralizedLendingProps> = ({
           </Typography>
         </DialogTitle>
         <DialogContent>
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="body1" sx={{ mb: 3 }}>
-              Adjust the loan amount and see how your credit score affects collateral requirements
-              in real-time:
-            </Typography>
-
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
-                <Typography variant="h6" gutterBottom>
-                  Loan Amount: ${loanAmount.toLocaleString()}
+          {showCreditBased ? (
+            <>
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="body1" sx={{ mb: 3 }}>
+                  Adjust the loan amount and see how your credit score affects collateral
+                  requirements in real-time:
                 </Typography>
-                <Slider
-                  value={loanAmount}
-                  onChange={(_, newValue) => setLoanAmount(newValue as number)}
-                  min={10000}
-                  max={underCollateralizedCheck.creditBasedLimit}
-                  step={5000}
-                  marks={[
-                    { value: 10000, label: '$10K' },
-                    { value: 50000, label: '$50K' },
-                    { value: underCollateralizedCheck.creditBasedLimit, label: 'Max' },
-                  ]}
-                  sx={{ mb: 3 }}
-                />
-              </Grid>
 
-              <Grid item xs={12} md={6}>
-                <Typography variant="h6" gutterBottom>
-                  Your Collateral: ${collateralAmount.toLocaleString()}
-                </Typography>
-                <Slider
-                  value={collateralAmount}
-                  onChange={(_, newValue) => setCollateralAmount(newValue as number)}
-                  min={20000}
-                  max={200000}
-                  step={10000}
-                  marks={[
-                    { value: 20000, label: '$20K' },
-                    { value: 100000, label: '$100K' },
-                    { value: 200000, label: '$200K' },
-                  ]}
-                  sx={{ mb: 3 }}
-                />
-              </Grid>
-            </Grid>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="h6" gutterBottom>
+                      Loan Amount: ${loanAmount.toLocaleString()}
+                    </Typography>
+                    <Slider
+                      value={loanAmount}
+                      onChange={(_, newValue) => setLoanAmount(newValue as number)}
+                      min={10000}
+                      max={underCollateralizedCheck.creditBasedLimit}
+                      step={5000}
+                      marks={[
+                        { value: 10000, label: '$10K' },
+                        { value: 50000, label: '$50K' },
+                        { value: underCollateralizedCheck.creditBasedLimit, label: 'Max' },
+                      ]}
+                      sx={{ mb: 3 }}
+                    />
+                  </Grid>
 
-            <Box sx={{ mt: 4 }}>
-              <Typography variant="h6" gutterBottom>
-                Real-Time Calculation Results:
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={6}>
-                  <Paper sx={{ p: 2, backgroundColor: 'error.light' }}>
-                    <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'error.dark' }}>
-                      Traditional DeFi Requirements
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="h6" gutterBottom>
+                      Your Collateral: ${collateralAmount.toLocaleString()}
                     </Typography>
-                    <Typography variant="body2">
-                      Collateral needed: ${traditionalCollateralRequired.toLocaleString()}
-                    </Typography>
-                    <Typography variant="body2">LTV: 80% (Fixed)</Typography>
-                  </Paper>
+                    <Slider
+                      value={collateralAmount}
+                      onChange={(_, newValue) => setCollateralAmount(newValue as number)}
+                      min={20000}
+                      max={200000}
+                      step={10000}
+                      marks={[
+                        { value: 20000, label: '$20K' },
+                        { value: 100000, label: '$100K' },
+                        { value: 200000, label: '$200K' },
+                      ]}
+                      sx={{ mb: 3 }}
+                    />
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} md={6}>
-                  <Paper sx={{ p: 2, backgroundColor: 'success.light' }}>
-                    <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'success.dark' }}>
-                      Your Credit-Based Terms
-                    </Typography>
-                    <Typography variant="body2">
-                      Collateral needed: $
-                      {underCollateralizedCheck.requiredCollateral.toLocaleString()}
-                    </Typography>
-                    <Typography variant="body2">
-                      LTV: {(underCollateralizedCheck.terms.maxLTV * 100).toFixed(1)}%
-                      (Credit-Based)
-                    </Typography>
-                  </Paper>
-                </Grid>
-              </Grid>
 
-              <Box sx={{ mt: 3, textAlign: 'center' }}>
-                <Chip
-                  icon={underCollateralizedCheck.qualifies ? <CheckIcon /> : <CloseIcon />}
-                  label={
-                    underCollateralizedCheck.qualifies && actualSavings > 0
-                      ? `✅ Approved! Save $${actualSavings.toLocaleString()} in collateral`
-                      : underCollateralizedCheck.qualifies
-                      ? `✅ Approved! No additional collateral needed`
-                      : `❌ Rejected`
-                  }
-                />
+                <Box sx={{ mt: 4 }}>
+                  <Typography variant="h6" gutterBottom>
+                    Real-Time Calculation Results:
+                  </Typography>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} md={6}>
+                      <Paper sx={{ p: 2, backgroundColor: 'error.light' }}>
+                        <Typography
+                          variant="body2"
+                          sx={{ fontWeight: 'bold', color: 'error.dark' }}
+                        >
+                          Traditional DeFi Requirements
+                        </Typography>
+                        <Typography variant="body2">
+                          Collateral needed: ${traditionalCollateralRequired.toLocaleString()}
+                        </Typography>
+                        <Typography variant="body2">LTV: 80% (Fixed)</Typography>
+                      </Paper>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <Paper sx={{ p: 2, backgroundColor: 'success.light' }}>
+                        <Typography
+                          variant="body2"
+                          sx={{ fontWeight: 'bold', color: 'success.dark' }}
+                        >
+                          Your Credit-Based Terms
+                        </Typography>
+                        <Typography variant="body2">
+                          Collateral needed: $
+                          {underCollateralizedCheck.requiredCollateral.toLocaleString()}
+                        </Typography>
+                        <Typography variant="body2">
+                          LTV: {(underCollateralizedCheck.terms.maxLTV * 100).toFixed(1)}%
+                          (Credit-Based)
+                        </Typography>
+                      </Paper>
+                    </Grid>
+                  </Grid>
+
+                  <Box sx={{ mt: 3, textAlign: 'center' }}>
+                    <Chip
+                      icon={
+                        underCollateralizedCheck.qualifies && actualSavings > 0 ? (
+                          <CheckIcon />
+                        ) : (
+                          <CloseIcon />
+                        )
+                      }
+                      label={
+                        underCollateralizedCheck.qualifies && actualSavings > 0
+                          ? `✅ Approved! Save $${actualSavings.toLocaleString()} in collateral`
+                          : underCollateralizedCheck.qualifies
+                          ? `✅ Approved! No additional collateral needed`
+                          : `❌ Rejected`
+                      }
+                      color={
+                        underCollateralizedCheck.qualifies && actualSavings > 0
+                          ? 'success'
+                          : 'error'
+                      }
+                      sx={{ fontSize: '1rem', fontWeight: 'bold', py: 1, px: 2 }}
+                    />
+                  </Box>
+                </Box>
               </Box>
+            </>
+          ) : (
+            <Box sx={{ mb: 4 }}>
+              <Typography variant="body1" sx={{ mb: 3 }}>
+                <strong>⚠️ You don't currently qualify for under-collateralized lending.</strong>
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 2 }}>
+                To qualify for under-collateralized lending, try the following:
+              </Typography>
+              <ul>
+                <li>Build a longer wallet history (older wallets score higher)</li>
+                <li>Increase your on-chain transaction activity</li>
+                <li>Maintain a strong repayment history (no missed/late payments)</li>
+                <li>Keep high and consistent collateralization ratios</li>
+                <li>Avoid liquidations</li>
+                <li>Diversify your assets and protocols</li>
+                <li>Increase your loan activity and regularity</li>
+              </ul>
+              <Typography variant="body2" sx={{ mt: 2 }}>
+                As your credit score improves, you'll unlock access to better lending terms!
+              </Typography>
             </Box>
-          </Box>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog} color="primary">
