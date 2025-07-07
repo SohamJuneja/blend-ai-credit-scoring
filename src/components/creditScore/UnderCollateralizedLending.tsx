@@ -173,7 +173,7 @@ const UnderCollateralizedLending: React.FC<UnderCollateralizedLendingProps> = ({
                   </>
                 ) : (
                   <>
-                    <strong>⚠️ You don't currently qualify for under-collateralized lending.</strong> 
+                    <strong>⚠️ You don&apos;t currently qualify for under-collateralized lending.</strong> 
                     Improve your credit score to unlock this feature.
                   </>
                 )}
