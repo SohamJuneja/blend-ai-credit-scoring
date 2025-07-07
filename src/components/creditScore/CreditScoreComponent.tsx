@@ -74,6 +74,102 @@ interface CreditScoreComponentProps {
   onScoreCalculated?: (score: CreditScoreData) => void;
 }
 
+// Dummy wallet and credit score data for demo mode
+const DUMMY_WALLET = 'GDUMMYWALLETADDRESS1234567890EXAMPLE';
+const DUMMY_CREDIT_DATA: CreditScoreData = {
+  totalScore: 850,
+  grade: 'EXCELLENT',
+  factors: [
+    {
+      id: 'wallet_age',
+      name: 'Wallet Age',
+      score: 100,
+      maxScore: 100,
+      weight: 20,
+      description: 'How long the wallet has existed',
+      status: 'EXCELLENT',
+      data: { months: 36 },
+      improvements: [],
+    },
+    {
+      id: 'transaction_history',
+      name: 'Transaction Count',
+      score: 100,
+      maxScore: 100,
+      weight: 15,
+      description: 'Number of transactions',
+      status: 'EXCELLENT',
+      data: { totalTransactions: 500 },
+      improvements: [],
+    },
+    {
+      id: 'loan_activity',
+      name: 'Loan Activity',
+      score: 100,
+      maxScore: 100,
+      weight: 15,
+      description: 'Number of loans taken',
+      status: 'EXCELLENT',
+      data: { totalLoans: 20 },
+      improvements: [],
+    },
+    {
+      id: 'repayment_history',
+      name: 'Repayment History',
+      score: 100,
+      maxScore: 100,
+      weight: 15,
+      description: 'On-time repayments',
+      status: 'EXCELLENT',
+      data: { totalLoans: 20, onTimePayments: 20, latePayments: 0, missedPayments: 0 },
+      improvements: [],
+    },
+    {
+      id: 'asset_diversity',
+      name: 'Asset Diversity',
+      score: 100,
+      maxScore: 100,
+      weight: 10,
+      description: 'Number of unique assets held',
+      status: 'EXCELLENT',
+      data: { uniqueAssets: 10 },
+      improvements: [],
+    },
+    {
+      id: 'collateralization',
+      name: 'Collateralization',
+      score: 100,
+      maxScore: 100,
+      weight: 15,
+      description: 'Average collateralization ratio',
+      status: 'EXCELLENT',
+      data: { timeWeightedAverage: 2.5 },
+      improvements: [],
+    },
+    {
+      id: 'liquidation_history',
+      name: 'Liquidation History',
+      score: 100,
+      maxScore: 100,
+      weight: 10,
+      description: 'Number of liquidations',
+      status: 'EXCELLENT',
+      data: { totalLiquidations: 0 },
+      improvements: [],
+    },
+  ],
+  benefits: {
+    maxLTV: 90,
+    interestRateDiscount: 5,
+    maxBorrowAmount: 100000,
+    priorityAccess: true,
+    liquidationBuffer: 10,
+  },
+  recommendations: [],
+  riskLevel: 'LOW',
+  lastUpdated: new Date(),
+};
+
 const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
   walletAddress,
   poolId = 'CCLBPEYS3XFK65MYYXSBMOGKUI4ODN5S7SUZBGD7NALUQF64QILLX5B5', // Default to main pool
@@ -87,6 +183,7 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
   const [blendIntegration, setBlendIntegration] = useState<BlendCreditIntegrationService | null>(
     null
   );
+  const [useDummy, setUseDummy] = useState(false);
 
   // DEBUG: Log key state on every render
   console.log('CreditScoreComponent render', {
@@ -105,13 +202,17 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
   const stellarDataService = new StellarDataService();
   const creditScoringAlgorithm = new CreditScoringAlgorithm();
 
+  // Use dummy or real data based on toggle
+  const displayWallet = useDummy ? DUMMY_WALLET : walletAddress;
+  const displayCreditData = useDummy ? DUMMY_CREDIT_DATA : creditData;
+
   const calculateCreditScore = async () => {
     setIsLoading(true);
     setError(null);
 
     try {
       // Fetch real wallet data
-      const onChainData = await stellarDataService.fetchOnChainData(walletAddress);
+      const onChainData = await stellarDataService.fetchOnChainData(displayWallet);
       const scoreData = creditScoringAlgorithm.calculateCreditScore(onChainData);
 
       setCreditData(scoreData);
@@ -157,8 +258,8 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
   };
 
   const handleShareScore = () => {
-    if (creditData) {
-      const shareText = `My Stellar Blend DeFi Credit Score: ${creditData.totalScore}/1000 (${creditData.grade})`;
+    if (displayCreditData) {
+      const shareText = `My Stellar Blend DeFi Credit Score: ${displayCreditData.totalScore}/1000 (${displayCreditData.grade})`;
       if (navigator.share) {
         navigator.share({
           title: 'Stellar Blend DeFi Credit Score',
@@ -202,6 +303,17 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
   if (isLoading) {
     return (
       <Box textAlign="center" py={8}>
+        <Box mb={3}>
+          <label style={{ fontWeight: 'bold', fontSize: 16 }}>
+            <input
+              type="checkbox"
+              checked={useDummy}
+              onChange={() => setUseDummy((v) => !v)}
+              style={{ marginRight: 8 }}
+            />
+            Demo Mode (Show Good Score)
+          </label>
+        </Box>
         <CircularProgress size={80} thickness={4} />
         <Typography variant="h5" sx={{ mt: 3, mb: 1 }}>
           Analyzing Your Credit Profile
@@ -221,72 +333,112 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
 
   if (error) {
     return (
-      <Alert severity="error" sx={{ mb: 3 }}>
-        <Typography variant="h6">Unable to Calculate Credit Score</Typography>
-        <Typography variant="body2" sx={{ mt: 1 }}>
-          {error}
-        </Typography>
-        <Button
-          variant="contained"
-          color="error"
-          onClick={calculateCreditScore}
-          sx={{ mt: 2 }}
-          startIcon={<RefreshIcon />}
-        >
-          Try Again
-        </Button>
-      </Alert>
+      <Box>
+        <Box mb={3}>
+          <label style={{ fontWeight: 'bold', fontSize: 16 }}>
+            <input
+              type="checkbox"
+              checked={useDummy}
+              onChange={() => setUseDummy((v) => !v)}
+              style={{ marginRight: 8 }}
+            />
+            Demo Mode (Show Good Score)
+          </label>
+        </Box>
+        <Alert severity="error" sx={{ mb: 3 }}>
+          <Typography variant="h6">Unable to Calculate Credit Score</Typography>
+          <Typography variant="body2" sx={{ mt: 1 }}>
+            {error}
+          </Typography>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={calculateCreditScore}
+            sx={{ mt: 2 }}
+            startIcon={<RefreshIcon />}
+          >
+            Try Again
+          </Button>
+        </Alert>
+      </Box>
     );
   }
 
-  if (!creditData && !isLoading) {
+  if (!displayCreditData && !isLoading) {
     return (
-      <Card sx={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
-        <CardContent>
-          <Box textAlign="center" py={6}>
-            <CreditScoreIcon sx={{ fontSize: 80, color: 'white', mb: 3 }} />
-            <Typography variant="h4" gutterBottom sx={{ color: 'white', fontWeight: 'bold' }}>
-              Get Your DeFi Credit Score
-            </Typography>
-            <Typography variant="h6" color="rgba(255,255,255,0.8)" gutterBottom sx={{ mb: 4 }}>
-              Unlock better lending terms with our comprehensive credit analysis
-            </Typography>
-            <Button
-              variant="contained"
-              size="large"
-              onClick={calculateCreditScore}
-              sx={{
-                mt: 2,
-                py: 1.5,
-                px: 4,
-                backgroundColor: 'white',
-                color: 'primary.main',
-                '&:hover': {
-                  backgroundColor: 'rgba(255,255,255,0.9)',
-                },
-              }}
-            >
-              Analyze My Wallet
-            </Button>
-            <Typography variant="body2" color="white" sx={{ mt: 2 }}>
-              If the results do not appear automatically, click the button above.
-            </Typography>
-          </Box>
-        </CardContent>
-      </Card>
+      <Box>
+        <Box mb={3}>
+          <label style={{ fontWeight: 'bold', fontSize: 16 }}>
+            <input
+              type="checkbox"
+              checked={useDummy}
+              onChange={() => setUseDummy((v) => !v)}
+              style={{ marginRight: 8 }}
+            />
+            Demo Mode (Show Good Score)
+          </label>
+        </Box>
+        <Card sx={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+          <CardContent>
+            <Box textAlign="center" py={6}>
+              <CreditScoreIcon sx={{ fontSize: 80, color: 'white', mb: 3 }} />
+              <Typography variant="h4" gutterBottom sx={{ color: 'white', fontWeight: 'bold' }}>
+                Get Your DeFi Credit Score
+              </Typography>
+              <Typography variant="h6" color="rgba(255,255,255,0.8)" gutterBottom sx={{ mb: 4 }}>
+                Unlock better lending terms with our comprehensive credit analysis
+              </Typography>
+              <Button
+                variant="contained"
+                size="large"
+                onClick={calculateCreditScore}
+                sx={{
+                  mt: 2,
+                  py: 1.5,
+                  px: 4,
+                  backgroundColor: 'white',
+                  color: 'primary.main',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                  },
+                }}
+              >
+                Analyze My Wallet
+              </Button>
+              <Typography variant="body2" color="white" sx={{ mt: 2 }}>
+                If the results do not appear automatically, click the button above.
+              </Typography>
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
     );
   }
+
+  // Use displayWallet and displayCreditData for all UI below
+  if (!displayCreditData) return null; // Ensure non-null for the rest of the render
 
   return (
     <Box>
+      <Box mb={3}>
+        <label style={{ fontWeight: 'bold', fontSize: 16 }}>
+          <input
+            type="checkbox"
+            checked={useDummy}
+            onChange={() => setUseDummy((v) => !v)}
+            style={{ marginRight: 8 }}
+          />
+          Demo Mode (Show Good Score)
+        </label>
+      </Box>
       {/* Wallet Info Banner */}
       <Alert severity="success" sx={{ mb: 3 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Box>
             <Typography variant="h6">📊 Live Wallet Analysis</Typography>
             <Typography variant="body2">
-              Analyzing wallet: {walletAddress.substring(0, 12)}...
-              {walletAddress.substring(walletAddress.length - 8)}
+              Analyzing wallet: {displayWallet.substring(0, 12)}...
+              {displayWallet.substring(displayWallet.length - 8)}
             </Typography>
           </Box>
           <Button
@@ -294,6 +446,7 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
             startIcon={<RefreshIcon />}
             onClick={calculateCreditScore}
             sx={{ borderColor: 'success.main', color: 'success.main' }}
+            disabled={useDummy}
           >
             Refresh Score
           </Button>
@@ -305,10 +458,10 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
         sx={{
           mb: 4,
           background: `linear-gradient(135deg, ${getScoreColor(
-            creditData.totalScore
-          )}15, ${getScoreColor(creditData.totalScore)}05)`,
-          border: `2px solid ${getScoreColor(creditData.totalScore)}30`,
-          boxShadow: `0 8px 32px ${getScoreColor(creditData.totalScore)}20`,
+            displayCreditData!.totalScore
+          )}15, ${getScoreColor(displayCreditData!.totalScore)}05)`,
+          border: `2px solid ${getScoreColor(displayCreditData!.totalScore)}30`,
+          boxShadow: `0 8px 32px ${getScoreColor(displayCreditData!.totalScore)}20`,
         }}
       >
         <CardContent sx={{ p: 4 }}>
@@ -328,17 +481,17 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
                     size={160}
                     thickness={4}
                     sx={{
-                      color: `${getScoreColor(creditData.totalScore)}20`,
+                      color: `${getScoreColor(displayCreditData!.totalScore)}20`,
                       position: 'absolute',
                     }}
                   />
                   <CircularProgress
                     variant="determinate"
-                    value={creditData.totalScore / 10}
+                    value={displayCreditData!.totalScore / 10}
                     size={160}
                     thickness={4}
                     sx={{
-                      color: getScoreColor(creditData.totalScore),
+                      color: getScoreColor(displayCreditData!.totalScore),
                     }}
                   />
                   <Box
@@ -358,12 +511,12 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
                       variant="h3"
                       component="div"
                       sx={{
-                        color: getScoreColor(creditData.totalScore),
+                        color: getScoreColor(displayCreditData!.totalScore),
                         fontWeight: 'bold',
                         lineHeight: 1,
                       }}
                     >
-                      {creditData.totalScore}
+                      {displayCreditData!.totalScore}
                     </Typography>
                     <Typography variant="body2" component="div" color="text.secondary">
                       out of 1000
@@ -371,9 +524,9 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
                   </Box>
                 </Box>
                 <Chip
-                  label={creditData.grade}
+                  label={displayCreditData!.grade}
                   sx={{
-                    backgroundColor: getScoreColor(creditData.totalScore),
+                    backgroundColor: getScoreColor(displayCreditData!.totalScore),
                     color: 'white',
                     fontWeight: 'bold',
                     fontSize: '0.9rem',
@@ -390,48 +543,59 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
               <List dense>
                 <ListItem sx={{ px: 0 }}>
                   <ListItemIcon sx={{ minWidth: 36 }}>
-                    <TrendingUpIcon sx={{ color: getScoreColor(creditData.totalScore) }} />
+                    <TrendingUpIcon sx={{ color: getScoreColor(displayCreditData!.totalScore) }} />
                   </ListItemIcon>
                   <ListItemText
                     primary="Max LTV Ratio"
                     secondary={
                       <Typography
                         variant="body2"
-                        sx={{ fontWeight: 'bold', color: getScoreColor(creditData.totalScore) }}
+                        sx={{
+                          fontWeight: 'bold',
+                          color: getScoreColor(displayCreditData!.totalScore),
+                        }}
                       >
-                        {creditData.benefits.maxLTV.toFixed(1)}%
+                        {displayCreditData!.benefits.maxLTV.toFixed(1)}%
                       </Typography>
                     }
                   />
                 </ListItem>
                 <ListItem sx={{ px: 0 }}>
                   <ListItemIcon sx={{ minWidth: 36 }}>
-                    <SecurityIcon sx={{ color: getScoreColor(creditData.totalScore) }} />
+                    <SecurityIcon sx={{ color: getScoreColor(displayCreditData!.totalScore) }} />
                   </ListItemIcon>
                   <ListItemText
                     primary="Interest Discount"
                     secondary={
                       <Typography
                         variant="body2"
-                        sx={{ fontWeight: 'bold', color: getScoreColor(creditData.totalScore) }}
+                        sx={{
+                          fontWeight: 'bold',
+                          color: getScoreColor(displayCreditData!.totalScore),
+                        }}
                       >
-                        {creditData.benefits.interestRateDiscount.toFixed(1)}%
+                        {displayCreditData!.benefits.interestRateDiscount.toFixed(1)}%
                       </Typography>
                     }
                   />
                 </ListItem>
                 <ListItem sx={{ px: 0 }}>
                   <ListItemIcon sx={{ minWidth: 36 }}>
-                    <AccountBalanceIcon sx={{ color: getScoreColor(creditData.totalScore) }} />
+                    <AccountBalanceIcon
+                      sx={{ color: getScoreColor(displayCreditData!.totalScore) }}
+                    />
                   </ListItemIcon>
                   <ListItemText
                     primary="Max Borrow Amount"
                     secondary={
                       <Typography
                         variant="body2"
-                        sx={{ fontWeight: 'bold', color: getScoreColor(creditData.totalScore) }}
+                        sx={{
+                          fontWeight: 'bold',
+                          color: getScoreColor(displayCreditData!.totalScore),
+                        }}
                       >
-                        ${creditData.benefits.maxBorrowAmount.toLocaleString()}
+                        ${displayCreditData!.benefits.maxBorrowAmount.toLocaleString()}
                       </Typography>
                     }
                   />
@@ -443,7 +607,7 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
                 📈 Score Analysis
               </Typography>
               <Typography variant="body2" color="text.secondary" paragraph>
-                {getGradeDescription(creditData.grade)}
+                {getGradeDescription(displayCreditData!.grade)}
               </Typography>
               <Box display="flex" gap={2} mt={3}>
                 <Button
@@ -452,13 +616,14 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
                   onClick={calculateCreditScore}
                   sx={{
                     flex: 1,
-                    borderColor: getScoreColor(creditData.totalScore),
-                    color: getScoreColor(creditData.totalScore),
+                    borderColor: getScoreColor(displayCreditData!.totalScore),
+                    color: getScoreColor(displayCreditData!.totalScore),
                     '&:hover': {
-                      borderColor: getScoreColor(creditData.totalScore),
-                      backgroundColor: `${getScoreColor(creditData.totalScore)}10`,
+                      borderColor: getScoreColor(displayCreditData!.totalScore),
+                      backgroundColor: `${getScoreColor(displayCreditData!.totalScore)}10`,
                     },
                   }}
+                  disabled={useDummy}
                 >
                   Refresh
                 </Button>
@@ -468,9 +633,9 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
                   onClick={handleShareScore}
                   sx={{
                     flex: 1,
-                    backgroundColor: getScoreColor(creditData.totalScore),
+                    backgroundColor: getScoreColor(displayCreditData!.totalScore),
                     '&:hover': {
-                      backgroundColor: getScoreColor(creditData.totalScore),
+                      backgroundColor: getScoreColor(displayCreditData!.totalScore),
                       opacity: 0.9,
                     },
                   }}
@@ -484,7 +649,7 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
       </Card>
 
       {/* Real Blend Protocol Integration */}
-      {blendIntegration && pool && (
+      {!useDummy && blendIntegration && pool && (
         <Card sx={{ mb: 4, border: '2px solid', borderColor: 'success.main' }}>
           <CardContent sx={{ p: 4 }}>
             <Typography
@@ -624,8 +789,136 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
       )}
 
       {/* Under-Collateralized Lending Demo */}
-      {creditData && blendIntegration && (
-        <UnderCollateralizedLending creditData={creditData} blendIntegration={blendIntegration} />
+      {!useDummy && displayCreditData && blendIntegration && (
+        <UnderCollateralizedLending
+          creditData={displayCreditData}
+          blendIntegration={blendIntegration}
+        />
+      )}
+
+      {/* Dummy Blend/Under-Collateralized sections for demo mode */}
+      {useDummy && (
+        <>
+          <Card sx={{ mb: 4, border: '2px solid', borderColor: 'success.main' }}>
+            <CardContent sx={{ p: 4 }}>
+              <Typography
+                variant="h5"
+                gutterBottom
+                sx={{ fontWeight: 'bold', color: 'success.main' }}
+              >
+                🔗 Demo Blend Protocol Integration
+              </Typography>
+              <Alert severity="success" sx={{ mb: 3 }}>
+                <Typography variant="body1">
+                  <strong>
+                    This is a demo of Blend Protocol integration for a high credit score wallet.
+                  </strong>
+                  The terms below are sample personalized lending parameters.
+                </Typography>
+              </Alert>
+              <Grid container spacing={3}>
+                {[1, 2, 3].map((idx) => (
+                  <Grid item xs={12} md={4} key={idx}>
+                    <Paper
+                      sx={{
+                        p: 3,
+                        border: '1px solid',
+                        borderColor: 'success.main',
+                        borderRadius: 2,
+                        background: 'linear-gradient(135deg, #4caf5010, #4caf5005)',
+                      }}
+                    >
+                      <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+                        DEMO-ASSET-{idx}
+                      </Typography>
+                      <Box sx={{ mt: 2 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          <strong>Your Personalized Terms:</strong>
+                        </Typography>
+                        <List dense>
+                          <ListItem sx={{ px: 0 }}>
+                            <ListItemText
+                              primary="Max LTV"
+                              secondary={
+                                <Typography
+                                  variant="body2"
+                                  sx={{ fontWeight: 'bold', color: 'success.main' }}
+                                >
+                                  90.0%
+                                  <Typography
+                                    component="span"
+                                    variant="caption"
+                                    color="text.secondary"
+                                  >
+                                    {' '}
+                                    (vs 80% standard)
+                                  </Typography>
+                                </Typography>
+                              }
+                            />
+                          </ListItem>
+                          <ListItem sx={{ px: 0 }}>
+                            <ListItemText
+                              primary="Interest Rate"
+                              secondary={
+                                <Typography
+                                  variant="body2"
+                                  sx={{ fontWeight: 'bold', color: 'success.main' }}
+                                >
+                                  3.00%
+                                  <Typography
+                                    component="span"
+                                    variant="caption"
+                                    color="text.secondary"
+                                  >
+                                    {' '}
+                                    (vs 8% standard)
+                                  </Typography>
+                                </Typography>
+                              }
+                            />
+                          </ListItem>
+                          <ListItem sx={{ px: 0 }}>
+                            <ListItemText
+                              primary="Liquidation Buffer"
+                              secondary={
+                                <Typography
+                                  variant="body2"
+                                  sx={{ fontWeight: 'bold', color: 'success.main' }}
+                                >
+                                  10.0%
+                                  <Typography
+                                    component="span"
+                                    variant="caption"
+                                    color="text.secondary"
+                                  >
+                                    {' '}
+                                    (vs 85% standard)
+                                  </Typography>
+                                </Typography>
+                              }
+                            />
+                          </ListItem>
+                        </List>
+                      </Box>
+                      <Box sx={{ mt: 2, p: 2, backgroundColor: 'success.light', borderRadius: 1 }}>
+                        <Typography
+                          variant="body2"
+                          sx={{ fontWeight: 'bold', color: 'success.dark' }}
+                        >
+                          ✅ Under-Collateralized Lending Available
+                        </Typography>
+                        <Typography variant="caption" color="success.dark">
+                          You qualify for loans up to $100,000 with minimal collateral requirements.
+                        </Typography>
+                      </Box>
+                    </Paper>
+                  </Grid>
+                ))}
+              </Grid>
+            </CardContent>
+          </Card>
+        </>
       )}
 
       {/* Enhanced Factor Breakdown */}
@@ -636,7 +929,7 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
             Credit Score Breakdown
           </Typography>
           <Grid container spacing={3}>
-            {creditData.factors.map((factor, index) => (
+            {displayCreditData.factors.map((factor, index) => (
               <Grid item xs={12} md={6} key={factor.id}>
                 <Paper
                   sx={{
@@ -774,7 +1067,10 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
       </Card>
 
       {/* Improvement Suggestions */}
-      <ImprovementSuggestions currentScore={creditData.totalScore} factors={creditData.factors} />
+      <ImprovementSuggestions
+        currentScore={displayCreditData.totalScore}
+        factors={displayCreditData.factors}
+      />
 
       {/* Enhanced Detailed Factor Analysis */}
       <Card sx={{ mb: 4 }}>
@@ -782,7 +1078,7 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
           <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mb: 3 }}>
             🔍 Detailed Factor Analysis
           </Typography>
-          {creditData.factors.map((factor) => (
+          {displayCreditData.factors.map((factor) => (
             <Accordion
               key={factor.id}
               sx={{
@@ -962,7 +1258,7 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
                             fontSize: '1.1rem',
                           }}
                         >
-                          {creditData.benefits.maxLTV.toFixed(1)}%
+                          {displayCreditData.benefits.maxLTV.toFixed(1)}%
                         </Typography>
                       }
                     />
@@ -980,7 +1276,7 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
                             fontSize: '1.1rem',
                           }}
                         >
-                          {creditData.benefits.interestRateDiscount.toFixed(1)}%
+                          {displayCreditData.benefits.interestRateDiscount.toFixed(1)}%
                         </Typography>
                       }
                     />
@@ -996,7 +1292,7 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
                             fontSize: '1.1rem',
                           }}
                         >
-                          {creditData.benefits.liquidationBuffer.toFixed(1)}%
+                          {displayCreditData.benefits.liquidationBuffer.toFixed(1)}%
                         </Typography>
                       }
                     />
@@ -1012,7 +1308,7 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
                             fontSize: '1.1rem',
                           }}
                         >
-                          {creditData.benefits.priorityAccess ? '✅ Yes' : '❌ No'}
+                          {displayCreditData.benefits.priorityAccess ? '✅ Yes' : '❌ No'}
                         </Typography>
                       }
                     />
