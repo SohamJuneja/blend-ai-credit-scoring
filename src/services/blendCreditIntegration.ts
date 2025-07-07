@@ -49,18 +49,17 @@ export class BlendCreditIntegrationService {
     const discountBasisPoints = this.creditScoreData.benefits.interestRateDiscount * 100;
     const discount = discountBasisPoints / 10000; // Convert basis points to decimal
 
-    // Apply credit score-based adjustments
     switch (this.creditScoreData.grade) {
       case 'EXCELLENT':
-        return Math.max(baseInterestRate * (1 - discount - 0.03), baseInterestRate * 0.7); // Up to 30% discount
+        return Math.max(baseInterestRate * (1 - discount - 0.03), baseInterestRate * 0.7, 0.01); // Never below 1%
       case 'GOOD':
-        return Math.max(baseInterestRate * (1 - discount - 0.02), baseInterestRate * 0.8); // Up to 20% discount
+        return Math.max(baseInterestRate * (1 - discount - 0.02), baseInterestRate * 0.8, 0.015); // Never below 1.5%
       case 'FAIR':
-        return Math.max(baseInterestRate * (1 - discount - 0.01), baseInterestRate * 0.9); // Up to 10% discount
+        return Math.max(baseInterestRate * (1 - discount - 0.01), baseInterestRate * 0.9, 0.02); // Never below 2%
       case 'POOR':
-        return baseInterestRate * (1 + 0.01); // 1% premium
+        return Math.max(baseInterestRate * (1 + 0.01), 0.04); // At least 4%
       case 'VERY_POOR':
-        return baseInterestRate * (1 + 0.025); // 2.5% premium
+        return Math.max(baseInterestRate * (1 + 0.025), 0.08); // At least 8%
       default:
         return baseInterestRate;
     }

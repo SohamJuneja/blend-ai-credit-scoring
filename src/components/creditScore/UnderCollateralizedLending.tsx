@@ -59,6 +59,11 @@ const UnderCollateralizedLending: React.FC<UnderCollateralizedLendingProps> = ({
     return qualifies ? theme.palette.success.main : theme.palette.error.main;
   };
 
+  // If user does not qualify (required collateral is higher than traditional), show warning only
+  const showCreditBased =
+    underCollateralizedCheck.qualifies &&
+    underCollateralizedCheck.requiredCollateral < traditionalCollateralRequired;
+
   return (
     <>
       <Card sx={{ mb: 4, border: '2px solid', borderColor: 'primary.main' }}>
@@ -101,95 +106,99 @@ const UnderCollateralizedLending: React.FC<UnderCollateralizedLendingProps> = ({
               </Paper>
             </Grid>
 
-            <Grid item xs={12} md={6}>
-              <Paper sx={{ p: 3, backgroundColor: 'success.light' }}>
-                <Typography variant="h6" gutterBottom sx={{ color: 'success.dark' }}>
-                  ✅ Credit-Based Lending (Blend + Credit Score)
-                </Typography>
-                <List dense>
-                  <ListItem>
-                    <ListItemText
-                      primary="Loan Amount"
-                      secondary={`$${loanAmount.toLocaleString()}`}
-                    />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText
-                      primary="Required Collateral"
-                      secondary={
-                        <Box>
-                          <Typography
-                            variant="body2"
-                            sx={{ fontWeight: 'bold', color: 'success.dark' }}
-                          >
-                            ${underCollateralizedCheck.requiredCollateral.toLocaleString()}
-                          </Typography>
-                          {actualSavings > 0 && (
-                            <Typography variant="caption" sx={{ color: 'success.main' }}>
-                              Save ${actualSavings.toLocaleString()}!
+            {showCreditBased && (
+              <Grid item xs={12} md={6}>
+                <Paper sx={{ p: 3, backgroundColor: 'success.light' }}>
+                  <Typography variant="h6" gutterBottom sx={{ color: 'success.dark' }}>
+                    ✅ Credit-Based Lending (Blend + Credit Score)
+                  </Typography>
+                  <List dense>
+                    <ListItem>
+                      <ListItemText
+                        primary="Loan Amount"
+                        secondary={`$${loanAmount.toLocaleString()}`}
+                      />
+                    </ListItem>
+                    <ListItem>
+                      <ListItemText
+                        primary="Required Collateral"
+                        secondary={
+                          <Box>
+                            <Typography
+                              variant="body2"
+                              sx={{ fontWeight: 'bold', color: 'success.dark' }}
+                            >
+                              ${underCollateralizedCheck.requiredCollateral.toLocaleString()}
                             </Typography>
-                          )}
-                        </Box>
-                      }
-                    />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText
-                      primary="LTV Ratio"
-                      secondary={`${(underCollateralizedCheck.terms.maxLTV * 100).toFixed(
-                        1
-                      )}% (Credit-Based)`}
-                    />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText
-                      primary="Interest Rate"
-                      secondary={`${(underCollateralizedCheck.terms.interestRate * 100).toFixed(
-                        2
-                      )}% (Credit-Based)`}
-                    />
-                  </ListItem>
-                </List>
-              </Paper>
-            </Grid>
+                            {actualSavings > 0 && (
+                              <Typography variant="caption" sx={{ color: 'success.main' }}>
+                                Save ${actualSavings.toLocaleString()}!
+                              </Typography>
+                            )}
+                          </Box>
+                        }
+                      />
+                    </ListItem>
+                    <ListItem>
+                      <ListItemText
+                        primary="LTV Ratio"
+                        secondary={`${(underCollateralizedCheck.terms.maxLTV * 100).toFixed(
+                          1
+                        )}% (Credit-Based)`}
+                      />
+                    </ListItem>
+                    <ListItem>
+                      <ListItemText
+                        primary="Interest Rate"
+                        secondary={`${(underCollateralizedCheck.terms.interestRate * 100).toFixed(
+                          2
+                        )}% (Credit-Based)`}
+                      />
+                    </ListItem>
+                  </List>
+                </Paper>
+              </Grid>
+            )}
           </Grid>
 
           <Box sx={{ mt: 3, textAlign: 'center' }}>
-            <Alert
-              severity={underCollateralizedCheck.qualifies ? 'success' : 'warning'}
-              sx={{ mb: 2 }}
-            >
-              <Typography variant="body1">
-                {underCollateralizedCheck.qualifies ? (
-                  <>
-                    <strong>🎉 You qualify for under-collateralized lending!</strong>
-                    Your credit score enables you to borrow with less collateral.
-                  </>
-                ) : (
-                  <>
-                    <strong>
-                      ⚠️ You don&apos;t currently qualify for under-collateralized lending.
-                    </strong>
-                    Improve your credit score to unlock this feature.
-                  </>
-                )}
-              </Typography>
-            </Alert>
+            {showCreditBased ? (
+              <Alert
+                severity={underCollateralizedCheck.qualifies ? 'success' : 'warning'}
+                sx={{ mb: 2 }}
+              >
+                <Typography variant="body1">
+                  <strong>🎉 You qualify for under-collateralized lending!</strong>
+                  Your credit score enables you to borrow with less collateral.
+                </Typography>
+              </Alert>
+            ) : (
+              <Alert severity="warning" sx={{ mb: 2 }}>
+                <Typography variant="body1">
+                  <strong>⚠️ You don't currently qualify for under-collateralized lending.</strong>
+                  Improve your credit score to unlock this feature.
+                </Typography>
+              </Alert>
+            )}
 
             <Button
               variant="contained"
               size="large"
               onClick={handleOpenDialog}
               sx={{
-                backgroundColor: getQualificationColor(underCollateralizedCheck.qualifies),
+                backgroundColor: showCreditBased
+                  ? getQualificationColor(underCollateralizedCheck.qualifies)
+                  : 'warning.main',
                 color: 'white',
                 '&:hover': {
-                  backgroundColor: getQualificationColor(underCollateralizedCheck.qualifies),
+                  backgroundColor: showCreditBased
+                    ? getQualificationColor(underCollateralizedCheck.qualifies)
+                    : 'warning.dark',
                   opacity: 0.9,
                 },
               }}
             >
-              {underCollateralizedCheck.qualifies ? 'Try Interactive Demo' : 'See How to Qualify'}
+              {showCreditBased ? 'Try Interactive Demo' : 'See How to Qualify'}
             </Button>
           </Box>
         </CardContent>
@@ -289,16 +298,9 @@ const UnderCollateralizedLending: React.FC<UnderCollateralizedLendingProps> = ({
                     underCollateralizedCheck.qualifies && actualSavings > 0
                       ? `✅ Approved! Save $${actualSavings.toLocaleString()} in collateral`
                       : underCollateralizedCheck.qualifies
-                      ? `✅ Approved for under-collateralized lending!`
-                      : `❌ Not approved. Need higher credit score.`
+                      ? `✅ Approved! No additional collateral needed`
+                      : `❌ Rejected`
                   }
-                  color={underCollateralizedCheck.qualifies ? 'success' : 'error'}
-                  sx={{
-                    fontSize: '1rem',
-                    fontWeight: 'bold',
-                    py: 1,
-                    px: 2,
-                  }}
                 />
               </Box>
             </Box>
@@ -306,13 +308,8 @@ const UnderCollateralizedLending: React.FC<UnderCollateralizedLendingProps> = ({
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog} color="primary">
-            Close Demo
+            Close
           </Button>
-          {underCollateralizedCheck.qualifies && (
-            <Button variant="contained" color="success" onClick={handleCloseDialog}>
-              Proceed to Loan Application
-            </Button>
-          )}
         </DialogActions>
       </Dialog>
     </>
