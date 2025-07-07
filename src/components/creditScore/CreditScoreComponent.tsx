@@ -1,12 +1,13 @@
+import CreditScoreIcon from '@mui/icons-material/CreditScore';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import { Alert, Box, Button, Card, CardContent, Typography } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 import { useTheme } from '@mui/material/styles';
 import { useEffect, useState } from 'react';
 import { usePool, usePoolMeta } from '../../hooks/api';
 import { BlendCreditIntegrationService } from '../../services/blendCreditIntegration';
 import { StellarDataService } from '../../services/stellarDataService';
 import { CreditScoringAlgorithm } from '../../utils/creditScoring';
-import { Card, CardContent, Box, Typography, Button, Alert } from '@mui/material';
-import { CreditScoreIcon } from '../../icons/CreditScoreIcon';
-import { RefreshIcon } from '../../icons/RefreshIcon';
 
 interface CreditFactor {
   id: string;
@@ -169,7 +170,8 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
               Connect Wallet to Get Started
             </Typography>
             <Typography variant="h6" color="rgba(255,255,255,0.8)" gutterBottom sx={{ mb: 4 }}>
-              Please connect your wallet to access your DeFi credit score and personalized lending terms.
+              Please connect your wallet to access your DeFi credit score and personalized lending
+              terms.
             </Typography>
             <Button
               variant="contained"
@@ -268,11 +270,8 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
       </Alert>
     );
   }
-  // ...rest of the component's main render logic...
-
-  return (
-    // ... rest of the component's JSX ...
-  );
+  // If all states handled, return null (or main UI if you have it)
+  return null;
 };
 
 export default CreditScoreComponent;
