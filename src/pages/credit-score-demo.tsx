@@ -1,10 +1,39 @@
 import { Alert, Box, Container, Typography } from '@mui/material';
+import dynamic from 'next/dynamic';
+import { useEffect, useState } from 'react';
 import DefaultLayout from '../layouts/DefaultLayout';
-import CreditScoreComponent from '../components/creditScore/CreditScoreComponent';
 import { useWallet } from '../contexts/wallet';
+import EnvironmentDebug from '../components/debug/EnvironmentDebug';
+
+// Dynamically import the component to avoid SSR issues
+const CreditScoreComponent = dynamic(
+  () => import('../components/creditScore/CreditScoreComponent'),
+  { 
+    ssr: false,
+    loading: () => <Typography>Loading credit scoring system...</Typography>
+  }
+);
 
 const CreditScoreDemo = () => {
   const { walletAddress, connected } = useWallet();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <DefaultLayout>
+        <Container maxWidth="lg">
+          <Box sx={{ py: 4 }}>
+            <Typography>Loading...</Typography>
+          </Box>
+        </Container>
+      </DefaultLayout>
+    );
+  }
 
   if (!connected) {
     return (
@@ -17,6 +46,9 @@ const CreditScoreDemo = () => {
                 Please connect your Stellar wallet to access the credit scoring system.
               </Typography>
             </Alert>
+            
+            {/* Debug information for troubleshooting */}
+            <EnvironmentDebug />
           </Box>
         </Container>
       </DefaultLayout>
@@ -46,6 +78,9 @@ const CreditScoreDemo = () => {
             walletAddress={walletAddress}
             poolId="CCLBPEYS3XFK65MYYXSBMOGKUI4ODN5S7SUZBGD7NALUQF64QILLX5B5"
           />
+          
+          {/* Debug information for troubleshooting */}
+          <EnvironmentDebug />
         </Box>
       </Container>
     </DefaultLayout>

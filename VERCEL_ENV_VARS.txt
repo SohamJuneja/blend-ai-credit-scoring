@@ -1,3 +1,6 @@
+# Environment Variables for Vercel Deployment
+# Copy these to your Vercel project settings
+
 NEXT_PUBLIC_STELLAR_EXPERT_URL=https://stellar.expert/explorer/testnet
 NEXT_PUBLIC_RPC_URL=https://soroban-testnet.stellar.org
 NEXT_PUBLIC_HORIZON_URL=https://horizon-testnet.stellar.org

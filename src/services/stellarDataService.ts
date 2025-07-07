@@ -7,6 +7,7 @@ import {
   OnChainData,
   RepaymentHistory,
 } from '../types/creditScore';
+import { EnvironmentConfig } from '../utils/environment';
 
 export class StellarDataService {
   private horizon: Horizon.Server;
@@ -14,9 +15,9 @@ export class StellarDataService {
 
   constructor(network: 'testnet' | 'mainnet' = 'testnet') {
     this.horizon = new Horizon.Server(
-      network === 'testnet' ? 'https://horizon-testnet.stellar.org' : 'https://horizon.stellar.org'
+      network === 'testnet' ? EnvironmentConfig.HORIZON_URL : 'https://horizon.stellar.org'
     );
-    this.blendPoolContract = process.env.NEXT_PUBLIC_BLEND_POOL_CONTRACT || '';
+    this.blendPoolContract = EnvironmentConfig.BLEND_POOL_CONTRACT;
   }
 
   async fetchOnChainData(walletAddress: string): Promise<OnChainData> {
