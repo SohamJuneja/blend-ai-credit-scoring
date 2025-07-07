@@ -7,17 +7,20 @@ The credit scoring system is now **fully integrated** with Blend Protocol, going
 ## 🔧 How It Works
 
 ### 1. Credit Score Calculation
+
 - **Real on-chain data analysis** using Stellar network
 - **Multi-factor scoring** including wallet age, transaction history, repayment patterns
 - **Dynamic risk assessment** based on DeFi activity
 
 ### 2. Blend Protocol Integration
+
 - **Personalized LTV ratios** (50%-95% based on credit score vs 80% standard)
 - **Dynamic interest rates** (up to 30% discount for excellent credit)
 - **Adjusted liquidation thresholds** (additional buffer for good credit)
 - **Credit-based borrowing limits** (up to $1M+ for excellent credit)
 
 ### 3. Under-Collateralized Lending
+
 - **Qualified users can borrow with less collateral** than traditional 80% LTV
 - **Interactive demo** showing real-time savings
 - **Risk-adjusted terms** based on credit profile
@@ -27,6 +30,7 @@ The credit scoring system is now **fully integrated** with Blend Protocol, going
 ### Core Services
 
 #### `BlendCreditIntegrationService`
+
 - **Calculates personalized lending terms** for each reserve
 - **Integrates with Blend Pool configurations**
 - **Provides real-time credit-based adjustments**
@@ -38,6 +42,7 @@ const personalizedTerms = integration.getLendingTermsSummary(reserve, collateral
 ```
 
 #### Key Features:
+
 - `getPersonalizedMaxLTV()` - Credit-based LTV calculation
 - `getPersonalizedInterestRate()` - Dynamic interest rates
 - `getPersonalizedLiquidationThreshold()` - Adjusted liquidation buffers
@@ -46,11 +51,13 @@ const personalizedTerms = integration.getLendingTermsSummary(reserve, collateral
 ### UI Components
 
 #### `CreditScoreComponent`
+
 - **Live Blend Protocol integration** display
 - **Real-time lending terms** for each reserve
 - **Interactive credit score calculation**
 
 #### `UnderCollateralizedLending`
+
 - **Interactive demo** of credit-based lending
 - **Real-time collateral requirement calculations**
 - **Qualification assessment** for reduced collateral loans
@@ -58,12 +65,14 @@ const personalizedTerms = integration.getLendingTermsSummary(reserve, collateral
 ## 🎯 Real Integration vs. Cosmetic
 
 ### ❌ Before (Cosmetic Only)
+
 - Static UI showing theoretical benefits
 - No actual integration with Blend contracts
 - Fixed LTV ratios and interest rates
 - No real lending parameter modification
 
 ### ✅ Now (True Integration)
+
 - **Dynamic calculation** of personalized lending terms
 - **Real-time integration** with Blend Pool data
 - **Credit-based modification** of actual lending parameters
@@ -73,6 +82,7 @@ const personalizedTerms = integration.getLendingTermsSummary(reserve, collateral
 ## 🚀 Demo Features
 
 ### Live Integration Demo (`/credit-score-demo`)
+
 1. **Connect wallet** to analyze real on-chain data
 2. **Calculate credit score** using actual transaction history
 3. **See personalized Blend Protocol terms** for real reserves
@@ -80,6 +90,7 @@ const personalizedTerms = integration.getLendingTermsSummary(reserve, collateral
 5. **Compare savings** vs traditional DeFi lending
 
 ### Interactive Elements
+
 - **Real-time sliders** for loan amount and collateral
 - **Live calculation** of credit-based terms
 - **Qualification status** for under-collateralized loans
@@ -88,6 +99,7 @@ const personalizedTerms = integration.getLendingTermsSummary(reserve, collateral
 ## 🔗 Technical Integration Points
 
 ### 1. Pool Configuration Integration
+
 ```typescript
 // Uses real Blend Pool data
 const { data: poolMeta } = usePoolMeta(poolId);
@@ -101,6 +113,7 @@ Array.from(pool.reserves.entries()).map(([assetId, reserve]) => {
 ```
 
 ### 2. Credit Score Integration
+
 ```typescript
 // Creates integration service with real pool data
 if (pool && creditScoreData) {
@@ -110,6 +123,7 @@ if (pool && creditScoreData) {
 ```
 
 ### 3. Under-Collateralized Lending
+
 ```typescript
 // Real-time qualification check
 const underCollateralizedCheck = blendIntegration.checkUnderCollateralizedLending(

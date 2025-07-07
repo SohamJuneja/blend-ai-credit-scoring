@@ -8,7 +8,7 @@ const EnvironmentDebug = () => {
 
   useEffect(() => {
     setIsClient(true);
-    
+
     // Get comprehensive environment information
     const info = EnvironmentValidator.getEnvironmentInfo();
     setEnvInfo(info);
@@ -27,10 +27,9 @@ const EnvironmentDebug = () => {
       <Alert severity={envInfo.isValid ? 'success' : 'error'} sx={{ mb: 2 }}>
         <Typography variant="h6">Environment Status</Typography>
         <Typography variant="body2">
-          {envInfo.isValid 
+          {envInfo.isValid
             ? '✅ All required environment variables are properly configured'
-            : `❌ Missing ${envInfo.missingVars.length} required environment variables`
-          }
+            : `❌ Missing ${envInfo.missingVars.length} required environment variables`}
         </Typography>
         {envInfo.isVercel && (
           <Typography variant="body2" sx={{ mt: 1 }}>
@@ -69,19 +68,19 @@ const EnvironmentDebug = () => {
           <Typography variant="h6" gutterBottom>
             Environment Variables
           </Typography>
-          
+
           {Object.entries(envInfo.allEnvVars).map(([key, value]) => (
             <Box key={key} sx={{ mb: 1 }}>
               <Typography variant="body2" component="span" sx={{ fontWeight: 'bold' }}>
                 {key}:
               </Typography>
-              <Typography 
-                variant="body2" 
-                component="span" 
-                sx={{ 
-                  ml: 1, 
+              <Typography
+                variant="body2"
+                component="span"
+                sx={{
+                  ml: 1,
                   color: value === 'NOT SET' ? 'error.main' : 'success.main',
-                  fontFamily: 'monospace'
+                  fontFamily: 'monospace',
                 }}
               >
                 {value === 'NOT SET' ? '❌ NOT SET' : `✅ ${String(value).substring(0, 20)}...`}

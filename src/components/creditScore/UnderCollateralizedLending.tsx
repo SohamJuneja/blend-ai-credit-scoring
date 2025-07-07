@@ -1,10 +1,4 @@
-import {
-  AccountBalance as AccountBalanceIcon,
-  Check as CheckIcon,
-  Close as CloseIcon,
-  Security as SecurityIcon,
-  TrendingUp as TrendingUpIcon,
-} from '@mui/icons-material';
+import { Check as CheckIcon, Close as CloseIcon } from '@mui/icons-material';
 import {
   Alert,
   Box,
@@ -19,7 +13,6 @@ import {
   Grid,
   List,
   ListItem,
-  ListItemIcon,
   ListItemText,
   Paper,
   Slider,
@@ -73,9 +66,9 @@ const UnderCollateralizedLending: React.FC<UnderCollateralizedLendingProps> = ({
           <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', color: 'primary.main' }}>
             🚀 Under-Collateralized Lending Demo
           </Typography>
-          
+
           <Typography variant="body1" sx={{ mb: 3 }}>
-            Your credit score of <strong>{creditData.totalScore}</strong> unlocks access to 
+            Your credit score of <strong>{creditData.totalScore}</strong> unlocks access to
             under-collateralized lending opportunities. See how much less collateral you need!
           </Typography>
 
@@ -99,16 +92,10 @@ const UnderCollateralizedLending: React.FC<UnderCollateralizedLendingProps> = ({
                     />
                   </ListItem>
                   <ListItem>
-                    <ListItemText
-                      primary="LTV Ratio"
-                      secondary="80% (Fixed)"
-                    />
+                    <ListItemText primary="LTV Ratio" secondary="80% (Fixed)" />
                   </ListItem>
                   <ListItem>
-                    <ListItemText
-                      primary="Interest Rate"
-                      secondary="8.0% (Standard)"
-                    />
+                    <ListItemText primary="Interest Rate" secondary="8.0% (Standard)" />
                   </ListItem>
                 </List>
               </Paper>
@@ -131,7 +118,10 @@ const UnderCollateralizedLending: React.FC<UnderCollateralizedLendingProps> = ({
                       primary="Required Collateral"
                       secondary={
                         <Box>
-                          <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'success.dark' }}>
+                          <Typography
+                            variant="body2"
+                            sx={{ fontWeight: 'bold', color: 'success.dark' }}
+                          >
                             ${underCollateralizedCheck.requiredCollateral.toLocaleString()}
                           </Typography>
                           {actualSavings > 0 && (
@@ -146,13 +136,17 @@ const UnderCollateralizedLending: React.FC<UnderCollateralizedLendingProps> = ({
                   <ListItem>
                     <ListItemText
                       primary="LTV Ratio"
-                      secondary={`${(underCollateralizedCheck.terms.maxLTV * 100).toFixed(1)}% (Credit-Based)`}
+                      secondary={`${(underCollateralizedCheck.terms.maxLTV * 100).toFixed(
+                        1
+                      )}% (Credit-Based)`}
                     />
                   </ListItem>
                   <ListItem>
                     <ListItemText
                       primary="Interest Rate"
-                      secondary={`${(underCollateralizedCheck.terms.interestRate * 100).toFixed(2)}% (Credit-Based)`}
+                      secondary={`${(underCollateralizedCheck.terms.interestRate * 100).toFixed(
+                        2
+                      )}% (Credit-Based)`}
                     />
                   </ListItem>
                 </List>
@@ -161,19 +155,21 @@ const UnderCollateralizedLending: React.FC<UnderCollateralizedLendingProps> = ({
           </Grid>
 
           <Box sx={{ mt: 3, textAlign: 'center' }}>
-            <Alert 
-              severity={underCollateralizedCheck.qualifies ? 'success' : 'warning'} 
+            <Alert
+              severity={underCollateralizedCheck.qualifies ? 'success' : 'warning'}
               sx={{ mb: 2 }}
             >
               <Typography variant="body1">
                 {underCollateralizedCheck.qualifies ? (
                   <>
-                    <strong>🎉 You qualify for under-collateralized lending!</strong> 
+                    <strong>🎉 You qualify for under-collateralized lending!</strong>
                     Your credit score enables you to borrow with less collateral.
                   </>
                 ) : (
                   <>
-                    <strong>⚠️ You don&apos;t currently qualify for under-collateralized lending.</strong> 
+                    <strong>
+                      ⚠️ You don&apos;t currently qualify for under-collateralized lending.
+                    </strong>
                     Improve your credit score to unlock this feature.
                   </>
                 )}
@@ -209,7 +205,8 @@ const UnderCollateralizedLending: React.FC<UnderCollateralizedLendingProps> = ({
         <DialogContent>
           <Box sx={{ mb: 4 }}>
             <Typography variant="body1" sx={{ mb: 3 }}>
-              Adjust the loan amount and see how your credit score affects collateral requirements in real-time:
+              Adjust the loan amount and see how your credit score affects collateral requirements
+              in real-time:
             </Typography>
 
             <Grid container spacing={3}>
@@ -265,9 +262,7 @@ const UnderCollateralizedLending: React.FC<UnderCollateralizedLendingProps> = ({
                     <Typography variant="body2">
                       Collateral needed: ${traditionalCollateralRequired.toLocaleString()}
                     </Typography>
-                    <Typography variant="body2">
-                      LTV: 80% (Fixed)
-                    </Typography>
+                    <Typography variant="body2">LTV: 80% (Fixed)</Typography>
                   </Paper>
                 </Grid>
                 <Grid item xs={12} md={6}>
@@ -276,10 +271,12 @@ const UnderCollateralizedLending: React.FC<UnderCollateralizedLendingProps> = ({
                       Your Credit-Based Terms
                     </Typography>
                     <Typography variant="body2">
-                      Collateral needed: ${underCollateralizedCheck.requiredCollateral.toLocaleString()}
+                      Collateral needed: $
+                      {underCollateralizedCheck.requiredCollateral.toLocaleString()}
                     </Typography>
                     <Typography variant="body2">
-                      LTV: {(underCollateralizedCheck.terms.maxLTV * 100).toFixed(1)}% (Credit-Based)
+                      LTV: {(underCollateralizedCheck.terms.maxLTV * 100).toFixed(1)}%
+                      (Credit-Based)
                     </Typography>
                   </Paper>
                 </Grid>
@@ -296,8 +293,8 @@ const UnderCollateralizedLending: React.FC<UnderCollateralizedLendingProps> = ({
                       : `❌ Not approved. Need higher credit score.`
                   }
                   color={underCollateralizedCheck.qualifies ? 'success' : 'error'}
-                  sx={{ 
-                    fontSize: '1rem', 
+                  sx={{
+                    fontSize: '1rem',
                     fontWeight: 'bold',
                     py: 1,
                     px: 2,

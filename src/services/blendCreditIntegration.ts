@@ -1,4 +1,4 @@
-import { Pool, PoolUser, Reserve, FixedMath } from '@blend-capital/blend-sdk';
+import { Pool, Reserve } from '@blend-capital/blend-sdk';
 import { CreditScoreData } from '../types/creditScore';
 
 /**
@@ -22,7 +22,7 @@ export class BlendCreditIntegrationService {
   getPersonalizedMaxLTV(baseMaxLTV: number): number {
     const creditMultiplier = this.getCreditMultiplier();
     const adjustedLTV = baseMaxLTV * creditMultiplier;
-    
+
     // Apply credit score-based adjustments
     switch (this.creditScoreData.grade) {
       case 'EXCELLENT':
@@ -48,7 +48,7 @@ export class BlendCreditIntegrationService {
   getPersonalizedInterestRate(baseInterestRate: number): number {
     const discountBasisPoints = this.creditScoreData.benefits.interestRateDiscount * 100;
     const discount = discountBasisPoints / 10000; // Convert basis points to decimal
-    
+
     // Apply credit score-based adjustments
     switch (this.creditScoreData.grade) {
       case 'EXCELLENT':
@@ -73,7 +73,7 @@ export class BlendCreditIntegrationService {
    */
   getPersonalizedLiquidationThreshold(baseLiquidationThreshold: number): number {
     const buffer = this.creditScoreData.benefits.liquidationBuffer / 100;
-    
+
     // Better credit scores get more buffer before liquidation
     switch (this.creditScoreData.grade) {
       case 'EXCELLENT':
@@ -100,11 +100,11 @@ export class BlendCreditIntegrationService {
   getPersonalizedMaxBorrow(baseMaxBorrow: number, collateralValue: number): number {
     const creditMaxBorrow = this.creditScoreData.benefits.maxBorrowAmount;
     const personalizedLTV = this.getPersonalizedMaxLTV(0.8); // Assume 80% base LTV
-    
+
     // Calculate max borrow based on credit score and collateral
     const collateralBasedMax = collateralValue * personalizedLTV;
     const creditBasedMax = Math.min(creditMaxBorrow, baseMaxBorrow * this.getCreditMultiplier());
-    
+
     return Math.min(collateralBasedMax, creditBasedMax);
   }
 
@@ -122,7 +122,10 @@ export class BlendCreditIntegrationService {
    * @param collateralValue User's collateral value
    * @returns Personalized lending terms
    */
-  getPersonalizedLendingTerms(reserve: Reserve, collateralValue: number): {
+  getPersonalizedLendingTerms(
+    reserve: Reserve,
+    collateralValue: number
+  ): {
     maxLTV: number;
     interestRate: number;
     liquidationThreshold: number;
@@ -133,13 +136,14 @@ export class BlendCreditIntegrationService {
     const baseMaxLTV = reserve.config.max_util / 1e7; // Convert from fixed point
     const baseLiquidationThreshold = reserve.config.l_factor / 1e7; // Use l_factor as liquidation threshold
     const baseInterestRate = reserve.borrowApr;
-    
+
     // Calculate personalized values
     const personalizedMaxLTV = this.getPersonalizedMaxLTV(baseMaxLTV);
     const personalizedInterestRate = this.getPersonalizedInterestRate(baseInterestRate);
-    const personalizedLiquidationThreshold = this.getPersonalizedLiquidationThreshold(baseLiquidationThreshold);
+    const personalizedLiquidationThreshold =
+      this.getPersonalizedLiquidationThreshold(baseLiquidationThreshold);
     const maxBorrowAmount = this.getPersonalizedMaxBorrow(1000000, collateralValue); // $1M base limit
-    
+
     return {
       maxLTV: personalizedMaxLTV,
       interestRate: personalizedInterestRate,
@@ -157,14 +161,14 @@ export class BlendCreditIntegrationService {
    */
   calculateDynamicInterestRate(currentUtilization: number, baseRate: number): number {
     const personalizedRate = this.getPersonalizedInterestRate(baseRate);
-    
+
     // Apply additional adjustments based on utilization and credit score
     if (currentUtilization > 0.9) {
       // High utilization - premium borrowers get better rates
       const utilizationDiscount = this.creditScoreData.grade === 'EXCELLENT' ? 0.01 : 0;
       return Math.max(personalizedRate - utilizationDiscount, personalizedRate * 0.95);
     }
-    
+
     return personalizedRate;
   }
 
@@ -174,13 +178,13 @@ export class BlendCreditIntegrationService {
    */
   private getCreditMultiplier(): number {
     const score = this.creditScoreData.totalScore;
-    
+
     // Linear interpolation between score ranges
     if (score >= 850) return 1.3;
-    if (score >= 700) return 1.0 + (score - 700) * 0.3 / 150; // 1.0 to 1.3
-    if (score >= 550) return 0.9 + (score - 550) * 0.1 / 150; // 0.9 to 1.0
-    if (score >= 400) return 0.8 + (score - 400) * 0.1 / 150; // 0.8 to 0.9
-    return 0.7 + (score - 300) * 0.1 / 100; // 0.7 to 0.8
+    if (score >= 700) return 1.0 + ((score - 700) * 0.3) / 150; // 1.0 to 1.3
+    if (score >= 550) return 0.9 + ((score - 550) * 0.1) / 150; // 0.9 to 1.0
+    if (score >= 400) return 0.8 + ((score - 400) * 0.1) / 150; // 0.8 to 0.9
+    return 0.7 + ((score - 300) * 0.1) / 100; // 0.7 to 0.8
   }
 
   /**
@@ -189,7 +193,10 @@ export class BlendCreditIntegrationService {
    * @param collateralValue User's collateral value
    * @returns Lending terms summary
    */
-  getLendingTermsSummary(reserve?: Reserve, collateralValue: number = 1000000): {
+  getLendingTermsSummary(
+    reserve?: Reserve,
+    collateralValue: number = 1000000
+  ): {
     maxLTV: number;
     interestRate: number;
     liquidationThreshold: number;
@@ -210,13 +217,13 @@ export class BlendCreditIntegrationService {
         creditMultiplier: terms.creditAdjustment,
       };
     }
-    
+
     // Default values if no reserve provided
     const baseMaxLTV = 0.8; // 80% standard
     const baseInterestRate = 0.08; // 8% standard
     const baseLiquidationThreshold = 0.85; // 85% standard
     const baseMaxBorrow = 1000000; // $1M standard
-    
+
     return {
       maxLTV: this.getPersonalizedMaxLTV(baseMaxLTV),
       interestRate: this.getPersonalizedInterestRate(baseInterestRate),
@@ -234,7 +241,10 @@ export class BlendCreditIntegrationService {
    * @param collateralValue User's collateral value
    * @returns Whether user qualifies and terms
    */
-  checkUnderCollateralizedLending(requestedAmount: number, collateralValue: number): {
+  checkUnderCollateralizedLending(
+    requestedAmount: number,
+    collateralValue: number
+  ): {
     qualifies: boolean;
     requiredCollateral: number;
     creditBasedLimit: number;
@@ -247,12 +257,12 @@ export class BlendCreditIntegrationService {
     const maxLTV = this.getPersonalizedMaxLTV(0.8);
     const requiredCollateral = requestedAmount / maxLTV;
     const creditBasedLimit = this.creditScoreData.benefits.maxBorrowAmount;
-    
-    const qualifies = 
-      this.creditScoreData.grade === 'EXCELLENT' || 
-      this.creditScoreData.grade === 'GOOD' || 
+
+    const qualifies =
+      this.creditScoreData.grade === 'EXCELLENT' ||
+      this.creditScoreData.grade === 'GOOD' ||
       (this.creditScoreData.grade === 'FAIR' && this.creditScoreData.totalScore > 600);
-    
+
     return {
       qualifies,
       requiredCollateral,

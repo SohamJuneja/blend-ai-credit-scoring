@@ -1,16 +1,16 @@
 import { Alert, Box, Container, Typography } from '@mui/material';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
-import DefaultLayout from '../layouts/DefaultLayout';
-import { useWallet } from '../contexts/wallet';
 import EnvironmentDebug from '../components/debug/EnvironmentDebug';
+import { useWallet } from '../contexts/wallet';
+import DefaultLayout from '../layouts/DefaultLayout';
 
 // Dynamically import the component to avoid SSR issues
 const CreditScoreComponent = dynamic(
   () => import('../components/creditScore/CreditScoreComponent'),
-  { 
+  {
     ssr: false,
-    loading: () => <Typography>Loading credit scoring system...</Typography>
+    loading: () => <Typography>Loading credit scoring system...</Typography>,
   }
 );
 
@@ -46,7 +46,7 @@ const CreditScoreDemo = () => {
                 Please connect your Stellar wallet to access the credit scoring system.
               </Typography>
             </Alert>
-            
+
             {/* Debug information for troubleshooting */}
             <EnvironmentDebug />
           </Box>
@@ -68,17 +68,17 @@ const CreditScoreDemo = () => {
 
           <Alert severity="success" sx={{ mb: 4 }}>
             <Typography variant="body1">
-              <strong>🎉 Live Integration Demo:</strong> This credit scoring system is now fully integrated 
-              with Blend Protocol! Your credit score directly affects your actual lending terms including 
-              LTV ratios, interest rates, and liquidation thresholds.
+              <strong>🎉 Live Integration Demo:</strong> This credit scoring system is now fully
+              integrated with Blend Protocol! Your credit score directly affects your actual lending
+              terms including LTV ratios, interest rates, and liquidation thresholds.
             </Typography>
           </Alert>
 
-          <CreditScoreComponent 
+          <CreditScoreComponent
             walletAddress={walletAddress}
             poolId="CCLBPEYS3XFK65MYYXSBMOGKUI4ODN5S7SUZBGD7NALUQF64QILLX5B5"
           />
-          
+
           {/* Debug information for troubleshooting */}
           <EnvironmentDebug />
         </Box>

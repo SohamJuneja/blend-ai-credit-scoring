@@ -33,8 +33,8 @@ import {
 import { useTheme } from '@mui/material/styles';
 import { useState } from 'react';
 import { usePool, usePoolMeta } from '../../hooks/api';
-import { StellarDataService } from '../../services/stellarDataService';
 import { BlendCreditIntegrationService } from '../../services/blendCreditIntegration';
+import { StellarDataService } from '../../services/stellarDataService';
 import { CreditScoringAlgorithm } from '../../utils/creditScoring';
 import ImprovementSuggestions from './ImprovementSuggestions';
 import UnderCollateralizedLending from './UnderCollateralizedLending';
@@ -82,7 +82,9 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
   const [creditData, setCreditData] = useState<CreditScoreData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [blendIntegration, setBlendIntegration] = useState<BlendCreditIntegrationService | null>(null);
+  const [blendIntegration, setBlendIntegration] = useState<BlendCreditIntegrationService | null>(
+    null
+  );
 
   // Hooks for Blend Protocol integration
   const { data: poolMeta } = usePoolMeta(poolId);
@@ -444,98 +446,137 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
       {blendIntegration && pool && (
         <Card sx={{ mb: 4, border: '2px solid', borderColor: 'success.main' }}>
           <CardContent sx={{ p: 4 }}>
-            <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', color: 'success.main' }}>
+            <Typography
+              variant="h5"
+              gutterBottom
+              sx={{ fontWeight: 'bold', color: 'success.main' }}
+            >
               🔗 Live Blend Protocol Integration
             </Typography>
             <Alert severity="success" sx={{ mb: 3 }}>
               <Typography variant="body1">
-                <strong>Your credit score is now actively integrated with Blend Protocol!</strong> 
+                <strong>Your credit score is now actively integrated with Blend Protocol!</strong>
                 The terms below are your actual personalized lending parameters.
               </Typography>
             </Alert>
-            
+
             <Grid container spacing={3}>
-              {Array.from(pool.reserves.entries()).slice(0, 3).map(([assetId, reserve]) => {
-                const lendingTerms = blendIntegration.getLendingTermsSummary(reserve, 100000);
-                const underCollateralizedCheck = blendIntegration.checkUnderCollateralizedLending(50000, 100000);
-                
-                return (
-                  <Grid item xs={12} md={4} key={assetId}>
-                    <Paper
-                      sx={{
-                        p: 3,
-                        border: '1px solid',
-                        borderColor: 'success.main',
-                        borderRadius: 2,
-                        background: 'linear-gradient(135deg, #4caf5010, #4caf5005)',
-                      }}
-                    >
-                      <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
-                        {assetId.substring(0, 10)}... Asset
-                      </Typography>
-                      
-                      <Box sx={{ mt: 2 }}>
-                        <Typography variant="body2" color="text.secondary">
-                          <strong>Your Personalized Terms:</strong>
+              {Array.from(pool.reserves.entries())
+                .slice(0, 3)
+                .map(([assetId, reserve]) => {
+                  const lendingTerms = blendIntegration.getLendingTermsSummary(reserve, 100000);
+                  const underCollateralizedCheck = blendIntegration.checkUnderCollateralizedLending(
+                    50000,
+                    100000
+                  );
+
+                  return (
+                    <Grid item xs={12} md={4} key={assetId}>
+                      <Paper
+                        sx={{
+                          p: 3,
+                          border: '1px solid',
+                          borderColor: 'success.main',
+                          borderRadius: 2,
+                          background: 'linear-gradient(135deg, #4caf5010, #4caf5005)',
+                        }}
+                      >
+                        <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+                          {assetId.substring(0, 10)}... Asset
                         </Typography>
-                        <List dense>
-                          <ListItem sx={{ px: 0 }}>
-                            <ListItemText
-                              primary="Max LTV"
-                              secondary={
-                                <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'success.main' }}>
-                                  {(lendingTerms.maxLTV * 100).toFixed(1)}%
-                                  <Typography component="span" variant="caption" color="text.secondary">
-                                    {' '}(vs 80% standard)
-                                  </Typography>
-                                </Typography>
-                              }
-                            />
-                          </ListItem>
-                          <ListItem sx={{ px: 0 }}>
-                            <ListItemText
-                              primary="Interest Rate"
-                              secondary={
-                                <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'success.main' }}>
-                                  {(lendingTerms.interestRate * 100).toFixed(2)}%
-                                  <Typography component="span" variant="caption" color="text.secondary">
-                                    {' '}(vs 8% standard)
-                                  </Typography>
-                                </Typography>
-                              }
-                            />
-                          </ListItem>
-                          <ListItem sx={{ px: 0 }}>
-                            <ListItemText
-                              primary="Liquidation Buffer"
-                              secondary={
-                                <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'success.main' }}>
-                                  {(lendingTerms.liquidationThreshold * 100).toFixed(1)}%
-                                  <Typography component="span" variant="caption" color="text.secondary">
-                                    {' '}(vs 85% standard)
-                                  </Typography>
-                                </Typography>
-                              }
-                            />
-                          </ListItem>
-                        </List>
-                      </Box>
-                      
-                      {underCollateralizedCheck.qualifies && (
-                        <Box sx={{ mt: 2, p: 2, backgroundColor: 'success.light', borderRadius: 1 }}>
-                          <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'success.dark' }}>
-                            ✅ Under-Collateralized Lending Available
+
+                        <Box sx={{ mt: 2 }}>
+                          <Typography variant="body2" color="text.secondary">
+                            <strong>Your Personalized Terms:</strong>
                           </Typography>
-                          <Typography variant="caption" color="success.dark">
-                            You qualify for loans up to ${underCollateralizedCheck.creditBasedLimit.toLocaleString()} 
-                            with minimal collateral requirements.
-                          </Typography>
+                          <List dense>
+                            <ListItem sx={{ px: 0 }}>
+                              <ListItemText
+                                primary="Max LTV"
+                                secondary={
+                                  <Typography
+                                    variant="body2"
+                                    sx={{ fontWeight: 'bold', color: 'success.main' }}
+                                  >
+                                    {(lendingTerms.maxLTV * 100).toFixed(1)}%
+                                    <Typography
+                                      component="span"
+                                      variant="caption"
+                                      color="text.secondary"
+                                    >
+                                      {' '}
+                                      (vs 80% standard)
+                                    </Typography>
+                                  </Typography>
+                                }
+                              />
+                            </ListItem>
+                            <ListItem sx={{ px: 0 }}>
+                              <ListItemText
+                                primary="Interest Rate"
+                                secondary={
+                                  <Typography
+                                    variant="body2"
+                                    sx={{ fontWeight: 'bold', color: 'success.main' }}
+                                  >
+                                    {(lendingTerms.interestRate * 100).toFixed(2)}%
+                                    <Typography
+                                      component="span"
+                                      variant="caption"
+                                      color="text.secondary"
+                                    >
+                                      {' '}
+                                      (vs 8% standard)
+                                    </Typography>
+                                  </Typography>
+                                }
+                              />
+                            </ListItem>
+                            <ListItem sx={{ px: 0 }}>
+                              <ListItemText
+                                primary="Liquidation Buffer"
+                                secondary={
+                                  <Typography
+                                    variant="body2"
+                                    sx={{ fontWeight: 'bold', color: 'success.main' }}
+                                  >
+                                    {(lendingTerms.liquidationThreshold * 100).toFixed(1)}%
+                                    <Typography
+                                      component="span"
+                                      variant="caption"
+                                      color="text.secondary"
+                                    >
+                                      {' '}
+                                      (vs 85% standard)
+                                    </Typography>
+                                  </Typography>
+                                }
+                              />
+                            </ListItem>
+                          </List>
                         </Box>
-                      )}
-                    </Paper>
-                  </Grid>
-                );
-              })}
+
+                        {underCollateralizedCheck.qualifies && (
+                          <Box
+                            sx={{ mt: 2, p: 2, backgroundColor: 'success.light', borderRadius: 1 }}
+                          >
+                            <Typography
+                              variant="body2"
+                              sx={{ fontWeight: 'bold', color: 'success.dark' }}
+                            >
+                              ✅ Under-Collateralized Lending Available
+                            </Typography>
+                            <Typography variant="caption" color="success.dark">
+                              You qualify for loans up to $
+                              {underCollateralizedCheck.creditBasedLimit.toLocaleString()}
+                              with minimal collateral requirements.
+                            </Typography>
+                          </Box>
+                        )}
+                      </Paper>
+                    </Grid>
+                  );
+                })}
             </Grid>
           </CardContent>
         </Card>
@@ -543,10 +584,7 @@ const CreditScoreComponent: React.FC<CreditScoreComponentProps> = ({
 
       {/* Under-Collateralized Lending Demo */}
       {creditData && blendIntegration && (
-        <UnderCollateralizedLending 
-          creditData={creditData} 
-          blendIntegration={blendIntegration}
-        />
+        <UnderCollateralizedLending creditData={creditData} blendIntegration={blendIntegration} />
       )}
 
       {/* Enhanced Factor Breakdown */}

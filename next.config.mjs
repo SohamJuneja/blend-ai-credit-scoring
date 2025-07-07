@@ -15,12 +15,12 @@ const nextConfig = {
   // Remove static export for Vercel deployment
   // output: 'export',
   // trailingSlash: true,
-  
+
   // Add experimental features for better wallet integration
   experimental: {
     esmExternals: 'loose',
   },
-  
+
   // Webpack config for better module resolution
   webpack: (config, { isServer }) => {
     if (!isServer) {
